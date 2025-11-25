@@ -71,6 +71,8 @@ cd boundless_deploy
 ./start_boundless_node.sh
 ```
 
+**Included:** The repository includes `boundless-bls-node-package-complete.tar.gz` (46MB) - the SOVRN Genesis mainnet image. No separate download needed!
+
 The script will:
 1. ✅ Auto-install Docker if needed
 2. ✅ Generate a new wallet or use your existing address

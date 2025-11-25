@@ -67,8 +67,10 @@ cd boundless_deploy
 ./start_boundless_node.sh
 ```
 
+**Genesis Image Included:** The repository includes the complete SOVRN genesis image (46MB) - no separate download required!
+
 The updated script automatically:
-- Downloads SOVRN genesis image
+- Uses bundled SOVRN genesis image
 - Configures proper bootnodes
 - Sets up health monitoring
 - Connects to canonical mainnet

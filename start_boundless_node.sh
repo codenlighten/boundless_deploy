@@ -31,6 +31,13 @@ IMAGE_FILE="boundless-mainnet-genesis.tar.gz"
 CONTAINER_NAME="boundless-node"
 IMAGE_NAME="boundless-mainnet:genesis"
 
+# Check for alternative image filenames in workspace
+WORKSPACE_IMAGE="boundless-bls-node-package-complete.tar.gz"
+if [ -f "$WORKSPACE_IMAGE" ] && [ ! -f "$IMAGE_FILE" ]; then
+    echo "📦 Found workspace image: $WORKSPACE_IMAGE"
+    IMAGE_FILE="$WORKSPACE_IMAGE"
+fi
+
 # SOVRN Genesis Authority Configuration
 GENESIS_HASH="19a89cdb0712ac6fba3445bf686a9fec5322dacaf57351cc9d3d55b87dab8e79"
 GENESIS_TIMESTAMP="1735689600"  # Jan 1, 2025 00:00:00 UTC

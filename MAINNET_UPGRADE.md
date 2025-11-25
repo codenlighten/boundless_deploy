@@ -58,16 +58,28 @@ chmod 777 /mnt/boundless_data
 
 #### Step 2: Get Official Docker Image
 
-**Option A: Download from SOVRN (Recommended)**
+**Option A: Use Bundled Image (Easiest)**
 ```bash
-# Download genesis image
+# The repository includes the genesis image!
+cd /root
+git clone https://github.com/codenlighten/boundless_deploy.git
+cd boundless_deploy
+
+# Image is already included: boundless-bls-node-package-complete.tar.gz (46MB)
+./start_boundless_node.sh
+# Script auto-detects and uses the bundled image
+```
+
+**Option B: Download from SOVRN**
+```bash
+# Download genesis image via SCP
 scp root@159.203.114.205:/tmp/boundless-mainnet-genesis.tar.gz /tmp/
 
 # Load image (handles gzip compression)
 gunzip -c /tmp/boundless-mainnet-genesis.tar.gz | docker load
 ```
 
-**Option B: Use Updated Deployment Script**
+**Option C: Use Updated Deployment Script**
 ```bash
 # Clone/update deployment repo
 cd /root
