@@ -479,28 +479,42 @@ if [ -n "$IMAGE_FILE" ] && [ -f "$IMAGE_FILE" ]; then
     # Verify file integrity first
     echo "Verifying file integrity..."
     FILE_SIZE=$(stat -f%z "$IMAGE_FILE" 2>/dev/null || stat -c%s "$IMAGE_FILE" 2>/dev/null)
-    echo "File size: $(numfmt --to=iec-i --suffix=B $FILE_SIZE 2>/dev/null || echo "$FILE_SIZE bytes")"
     
     # Check if file seems complete (should be >40MB for our image)
     MIN_SIZE=40000000  # 40MB minimum
     if [ "$FILE_SIZE" -lt "$MIN_SIZE" ]; then
         echo ""
-        echo "⚠️  WARNING: Image file appears incomplete or corrupted"
-        echo "Expected: >40MB"
+        echo "❌ ERROR: Image file is incomplete or corrupted"
+        echo "Expected: >40MB (gzip compressed Docker image)"
         echo "Got: $FILE_SIZE bytes"
         echo ""
-        echo "File info:"
+        echo "File appears to be:"
         file "$IMAGE_FILE"
         echo ""
-        echo -n "Attempt to load anyway? (yes/no): "
-        read -r ATTEMPT_LOAD
-        if [ "$ATTEMPT_LOAD" != "yes" ]; then
-            echo ""
-            echo "Please re-download the image file."
-            echo "Delete the corrupted file: rm $IMAGE_FILE"
-            exit 1
-        fi
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "SOLUTION: Delete the corrupted file and download fresh image"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+        echo "Run these commands:"
+        echo ""
+        echo "  # Delete corrupted file"
+        echo "  rm $IMAGE_FILE"
+        echo ""
+        echo "  # Download official image from SOVRN"
+        echo "  sshpass -p 'GcC=.5dA/37a2#N' ssh -o StrictHostKeyChecking=no root@159.203.114.205 \\"
+        echo "    \"docker save boundless-mainnet:genesis | gzip\" > boundless-bls-node-package-complete.tar.gz"
+        echo ""
+        echo "  # Or if using git clone, pull fresh copy"
+        echo "  git pull"
+        echo ""
+        echo "  # Then run this script again"
+        echo "  ./start_boundless_node.sh"
+        echo ""
+        exit 1
     fi
+    
+    # Show file size
+    echo "File size: $(numfmt --to=iec-i --suffix=B $FILE_SIZE 2>/dev/null || echo "$FILE_SIZE bytes")"
     
     # Check if it's gzipped
     if file "$IMAGE_FILE" | grep -q "gzip compressed"; then
@@ -539,16 +553,29 @@ fi
 # Verify the image exists
 echo ""
 echo "Verifying Docker image..."
-if ! docker images | grep -q "$IMAGE_NAME"; then
-    echo "❌ Image not found: $IMAGE_NAME"
+if docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^${IMAGE_NAME}$"; then
+    echo "✅ Image verified: $IMAGE_NAME"
+else
+    echo "⚠️  Image name mismatch detected"
     echo ""
-    echo "Available images:"
-    docker images
-    echo ""
-    echo "Please ensure the image is loaded correctly."
-    exit 1
+    echo "Looking for loaded Boundless images..."
+    LOADED_IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -i "boundless" | head -1)
+    
+    if [ -n "$LOADED_IMAGE" ]; then
+        echo "✅ Found: $LOADED_IMAGE"
+        echo ""
+        echo "Using loaded image: $LOADED_IMAGE"
+        IMAGE_NAME="$LOADED_IMAGE"
+    else
+        echo "❌ No Boundless images found"
+        echo ""
+        echo "Available images:"
+        docker images
+        echo ""
+        echo "Please ensure the image is loaded correctly."
+        exit 1
+    fi
 fi
-echo "✅ Image verified: $IMAGE_NAME"
 
 # Create data directory with proper permissions
 echo ""
