@@ -608,9 +608,7 @@ docker run -d \
     --mining \
     --coinbase "$MINING_ADDRESS" \
     --mining-threads "$MINING_THREADS" \
-    --rpc-host 0.0.0.0 \
-    --bootnodes "/ip4/159.203.114.205/tcp/30333/p2p/$SOVRN_PEER_ID" \
-    --bootnodes "/ip4/104.248.166.157/tcp/30333/p2p/$SNTNL_PEER_ID"
+    --rpc-host 0.0.0.0
 
 echo ""
 echo "======================================"
@@ -629,8 +627,11 @@ echo "Boundless BLS Mainnet Information:"
 echo "  Genesis Authority: SOVRN (159.203.114.205)"
 echo "  Genesis Hash: $GENESIS_HASH"
 echo "  Genesis Timestamp: Jan 1, 2025 00:00:00 UTC"
-echo "  SOVRN Peer: $SOVRN_PEER_ID"
-echo "  SNTNL Peer: $SNTNL_PEER_ID"
+echo "  Note: Node will auto-discover peers via P2P network"
+echo ""
+echo "Network Bootnodes (for reference):"
+echo "  SOVRN: /ip4/159.203.114.205/tcp/30333/p2p/$SOVRN_PEER_ID"
+echo "  SNTNL: /ip4/104.248.166.157/tcp/30333/p2p/$SNTNL_PEER_ID"
 echo ""
 echo "Official Package Info:"
 echo "  Package available at: C:\\Users\\ripva\\Desktop\\boundless-node-package\\"
