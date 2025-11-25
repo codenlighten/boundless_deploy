@@ -10,11 +10,46 @@ echo "Boundless BLS Node - Quick Start"
 echo "======================================"
 echo ""
 
+# Check if running as root
+if [ "$EUID" -eq 0 ]; then 
+    echo "⚠️  WARNING: Running as root user"
+    echo ""
+    echo "It's recommended to run this script as a regular user with sudo privileges."
+    echo -n "Continue as root? (yes/no): "
+    read -r CONTINUE_AS_ROOT
+    
+    if [ "$CONTINUE_AS_ROOT" != "yes" ] && [ "$CONTINUE_AS_ROOT" != "y" ]; then
+        echo "Please run this script as a regular user."
+        exit 1
+    fi
+    echo ""
+fi
+
 # Configuration
 IMAGE_URL="http://159.203.114.205/node/blockchain-image.tar.gz"
 IMAGE_FILE="blockchain-image.tar.gz"
 CONTAINER_NAME="boundless-node"
 IMAGE_NAME="boundless-bls-platform-blockchain:latest"
+
+# Check if curl is installed (needed for downloading)
+if ! command -v curl &> /dev/null; then
+    echo "⚠️  curl is not installed!"
+    echo ""
+    echo "curl is required to download the blockchain image."
+    echo -n "Would you like to install curl now? (yes/no): "
+    read -r INSTALL_CURL
+    
+    if [ "$INSTALL_CURL" = "yes" ] || [ "$INSTALL_CURL" = "y" ]; then
+        echo "Installing curl..."
+        sudo apt update
+        sudo apt install curl -y
+        echo "✅ curl installed successfully!"
+        echo ""
+    else
+        echo "ERROR: curl is required to download the blockchain image."
+        exit 1
+    fi
+fi
 
 # Check if Docker is installed
 if ! command -v docker &> /dev/null; then
@@ -141,11 +176,26 @@ if [ "$WALLET_CHOICE" = "1" ]; then
     # Check Python dependencies
     if ! python3 -c "import mnemonic, Crypto.Hash, nacl" 2>/dev/null; then
         echo "Installing required Python dependencies..."
-        pip3 install mnemonic PyNaCl pycryptodome --quiet || {
-            echo "ERROR: Failed to install dependencies"
-            echo "Please run: pip3 install mnemonic PyNaCl pycryptodome"
-            exit 1
-        }
+        echo "This may take a minute..."
+        
+        # Try pip3 install
+        if pip3 install mnemonic PyNaCl pycryptodome 2>/dev/null; then
+            echo "✅ Dependencies installed successfully!"
+        else
+            # If pip3 fails, try with --break-system-packages flag (for newer Ubuntu versions)
+            echo "Retrying with --break-system-packages flag..."
+            pip3 install mnemonic PyNaCl pycryptodome --break-system-packages || {
+                echo "ERROR: Failed to install dependencies"
+                echo ""
+                echo "Please try manually:"
+                echo "  pip3 install mnemonic PyNaCl pycryptodome"
+                echo ""
+                echo "Or use option 2 to provide an existing wallet address."
+                exit 1
+            }
+            echo "✅ Dependencies installed successfully!"
+        fi
+        echo ""
     fi
     
     # Generate wallet
