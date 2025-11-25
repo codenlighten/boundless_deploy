@@ -4,6 +4,14 @@
 
 **Official Repository:** https://github.com/codenlighten/boundless_deploy
 
+## 🚀 SOVRN Genesis Authority - Mainnet Live!
+
+**Genesis Date:** January 1, 2025 00:00:00 UTC  
+**Genesis Hash:** `19a89cdb0712ac6fba3445bf686a9fec5322dacaf57351cc9d3d55b87dab8e79`  
+**Status:** ✅ **CANONICAL MAINNET LIVE**
+
+The unified Boundless BLS mainnet is now operational with SOVRN as the genesis authority.
+
 ## Overview
 
 Deploy Boundless BLS blockchain mining nodes with Lumenbridge's production-ready, schema-first architecture:
@@ -15,18 +23,33 @@ Deploy Boundless BLS blockchain mining nodes with Lumenbridge's production-ready
 - ✅ **Multi-node orchestration** with sequential or parallel strategies
 - ✅ **Automated Docker installation** on Ubuntu/Debian systems
 - ✅ **Automatic wallet generation** with BIP39 24-word recovery phrases
+- ✅ **Health monitoring** with built-in health checks
 
 ## Network Information
 
-- **Primary Node (SNTNL):** `104.248.166.157:30333`
-- **PeerId:** `12D3KooWCv2ETgGZx5i8rzebmAHuu57iDnqFxGa5ZR8D29CNrpXR`
-- **Bootnode:** `/ip4/159.203.114.205/tcp/30333/p2p/12D3KooWAeNG1hyCePFBb2Ryz4a5hR5gamVKvMgA7LRGbx5MPMPE`
-- **Block Height:** 1,008+ (and growing)
-- **Total Supply:** 50,450+ BLS
+### SOVRN Genesis Authority (Primary)
+- **Host:** `159.203.114.205:30333`
+- **PeerId:** `12D3KooWN5ZJAXXZviBDteowfWRsxXuDUMp6YuEzcRDoSuwMSod8`
+- **Bootnode:** `/ip4/159.203.114.205/tcp/30333/p2p/12D3KooWN5ZJAXXZviBDteowfWRsxXuDUMp6YuEzcRDoSuwMSod8`
+- **Role:** Genesis authority and primary bootnode
+
+### SNTNL Authority (Secondary)
+- **Host:** `104.248.166.157:30333`
+- **PeerId:** `12D3KooWHWn3YCYPtd2ewdWehuv61CHWGADMg1fCnY5MHvVrJmJQ`
+- **Bootnode:** `/ip4/104.248.166.157/tcp/30333/p2p/12D3KooWHWn3YCYPtd2ewdWehuv61CHWGADMg1fCnY5MHvVrJmJQ`
+- **Role:** Secondary bootnode and validator
+
+### Ecosystem
 - **Explorer:** https://traceboundless.com
-- **P2P Port:** 30333
-- **RPC Port:** 9933
-- **Resources:** http://159.203.114.205/node/
+- **Trust:** https://boundlesstrust.org
+- **Wallet:** https://e2multipass.com ([GitHub](https://github.com/Saifullah62/E2-Multipass))
+- **dApp:** https://swarmproof.com
+
+### Ports
+- **P2P:** 30333
+- **RPC HTTP:** 9933
+- **RPC WebSocket:** 9944
+- **API:** 3001
 
 ## Features
 

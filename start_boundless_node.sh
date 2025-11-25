@@ -26,10 +26,16 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 # Configuration
-IMAGE_URL="http://159.203.114.205/node/blockchain-image.tar.gz"
-IMAGE_FILE="blockchain-image.tar.gz"
+IMAGE_URL="http://159.203.114.205/tmp/boundless-mainnet-genesis.tar.gz"
+IMAGE_FILE="boundless-mainnet-genesis.tar.gz"
 CONTAINER_NAME="boundless-node"
-IMAGE_NAME="boundless-bls-platform-blockchain:latest"
+IMAGE_NAME="boundless-mainnet:genesis"
+
+# SOVRN Genesis Authority Configuration
+GENESIS_HASH="19a89cdb0712ac6fba3445bf686a9fec5322dacaf57351cc9d3d55b87dab8e79"
+GENESIS_TIMESTAMP="1735689600"  # Jan 1, 2025 00:00:00 UTC
+SOVRN_PEER_ID="12D3KooWN5ZJAXXZviBDteowfWRsxXuDUMp6YuEzcRDoSuwMSod8"
+SNTNL_PEER_ID="12D3KooWHWn3YCYPtd2ewdWehuv61CHWGADMg1fCnY5MHvVrJmJQ"
 
 # Check if curl is installed (needed for downloading)
 if ! command -v curl &> /dev/null; then
@@ -281,29 +287,87 @@ MINING_THREADS=${MINING_THREADS:-2}
 # Check if container already exists
 if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
     echo ""
-    echo "Container '$CONTAINER_NAME' already exists."
-    echo "Do you want to remove it and start fresh? (y/n)"
-    read -r REMOVE_EXISTING
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Existing Node Detected"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "A Boundless node container already exists."
+    echo ""
+    echo "Options:"
+    echo "  1) Resume existing node (keeps all blockchain data)"
+    echo "  2) Start fresh (WARNING: deletes all blockchain data and wallet config)"
+    echo ""
+    echo -n "Enter choice (1 or 2): "
+    read -r EXISTING_CHOICE
     
-    if [ "$REMOVE_EXISTING" = "y" ] || [ "$REMOVE_EXISTING" = "Y" ]; then
-        echo "Stopping and removing existing container..."
-        docker stop "$CONTAINER_NAME" 2>/dev/null || true
-        docker rm "$CONTAINER_NAME" 2>/dev/null || true
-    else
-        echo "Starting existing container..."
-        docker start "$CONTAINER_NAME"
+    if [ "$EXISTING_CHOICE" = "1" ]; then
         echo ""
-        echo "Container started! View logs with:"
-        echo "  docker logs -f $CONTAINER_NAME"
+        echo "Resuming existing node..."
+        
+        # Check if container is already running
+        if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+            echo "✅ Node is already running!"
+            echo ""
+            echo "Useful commands:"
+            echo "  - View logs:    docker logs -f $CONTAINER_NAME"
+            echo "  - Stop node:    docker stop $CONTAINER_NAME"
+            echo "  - Restart:      docker restart $CONTAINER_NAME"
+            echo ""
+            echo "Viewing logs now (Ctrl+C to exit)..."
+            sleep 2
+            docker logs -f "$CONTAINER_NAME"
+        else
+            docker start "$CONTAINER_NAME"
+            echo "✅ Node resumed successfully!"
+            echo ""
+            echo "The node will continue from where it left off."
+            echo ""
+            echo "Viewing logs now (Ctrl+C to exit)..."
+            sleep 2
+            docker logs -f "$CONTAINER_NAME"
+        fi
         exit 0
+        
+    elif [ "$EXISTING_CHOICE" = "2" ]; then
+        echo ""
+        echo "⚠️  WARNING: This will DELETE all blockchain data!"
+        echo ""
+        echo "This includes:"
+        echo "  • All downloaded blocks"
+        echo "  • Wallet configuration"
+        echo "  • Mining progress"
+        echo ""
+        echo -n "Are you absolutely sure? Type 'DELETE' to confirm: "
+        read -r CONFIRM_DELETE
+        
+        if [ "$CONFIRM_DELETE" = "DELETE" ]; then
+            echo ""
+            echo "Stopping and removing existing container..."
+            docker stop "$CONTAINER_NAME" 2>/dev/null || true
+            docker rm "$CONTAINER_NAME" 2>/dev/null || true
+            
+            echo "Removing blockchain data volume..."
+            docker volume rm boundless-data 2>/dev/null || true
+            
+            echo "✅ Cleanup complete. Starting fresh..."
+            echo ""
+        else
+            echo ""
+            echo "Deletion cancelled. Exiting."
+            exit 0
+        fi
+    else
+        echo ""
+        echo "ERROR: Invalid choice. Please enter 1 or 2."
+        exit 1
     fi
 fi
 
 # Download Docker image if not already present
 if [ ! -f "$IMAGE_FILE" ]; then
     echo ""
-    echo "Downloading Docker image (46MB)..."
-    curl -O "$IMAGE_URL"
+    echo "Downloading SOVRN Genesis mainnet image..."
+    curl -o "$IMAGE_FILE" "$IMAGE_URL"
 else
     echo ""
     echo "Docker image file already exists, skipping download."
@@ -312,23 +376,42 @@ fi
 # Load Docker image
 echo ""
 echo "Loading Docker image..."
-docker load < "$IMAGE_FILE"
+gunzip -c "$IMAGE_FILE" | docker load || docker load < "$IMAGE_FILE"
+
+# Create data directory with proper permissions
+echo ""
+echo "Preparing data directory..."
+sudo mkdir -p /mnt/boundless_data
+sudo chmod 777 /mnt/boundless_data
 
 # Run the container
 echo ""
-echo "Starting Boundless BLS node..."
+echo "Starting Boundless BLS mainnet node..."
+echo "Genesis Hash: $GENESIS_HASH"
+echo "Connecting to SOVRN Genesis Authority..."
+echo ""
 docker run -d \
     --name "$CONTAINER_NAME" \
     --restart unless-stopped \
     -p 30333:30333 \
     -p 9933:9933 \
-    -v boundless-data:/data \
+    -p 9944:9944 \
+    -p 3001:3001 \
+    -v /mnt/boundless_data:/data \
+    -e RUST_LOG=info \
+    --health-cmd="curl -sf -X POST -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"method\":\"system_health\",\"params\":[],\"id\":1}' http://localhost:9933/ || exit 1" \
+    --health-interval=30s \
+    --health-timeout=10s \
+    --health-retries=5 \
+    --health-start-period=60s \
     "$IMAGE_NAME" \
     --base-path /data \
     --mining \
     --coinbase "$MINING_ADDRESS" \
     --mining-threads "$MINING_THREADS" \
-    --rpc-host 0.0.0.0
+    --rpc-host 0.0.0.0 \
+    --bootnodes "/ip4/159.203.114.205/tcp/30333/p2p/$SOVRN_PEER_ID" \
+    --bootnodes "/ip4/104.248.166.157/tcp/30333/p2p/$SNTNL_PEER_ID"
 
 echo ""
 echo "======================================"
@@ -339,24 +422,38 @@ echo "Configuration:"
 echo "  - Mining Address: $MINING_ADDRESS"
 echo "  - Mining Threads: $MINING_THREADS"
 echo "  - P2P Port: 30333"
-echo "  - RPC Port: 9933"
+echo "  - RPC HTTP Port: 9933"
+echo "  - RPC WebSocket Port: 9944"
+echo "  - API Port: 3001"
 echo ""
-echo "Network Information:"
-echo "  Primary Node: 104.248.166.157 (SNTNL)"
-echo "  Bootnode: /ip4/159.203.114.205/tcp/30333/p2p/12D3KooWAeNG1hyCePFBb2Ryz4a5hR5gamVKvMgA7LRGbx5MPMPE"
+echo "Boundless BLS Mainnet Information:"
+echo "  Genesis Authority: SOVRN (159.203.114.205)"
+echo "  Genesis Hash: $GENESIS_HASH"
+echo "  Genesis Timestamp: Jan 1, 2025 00:00:00 UTC"
+echo "  SOVRN Peer: $SOVRN_PEER_ID"
+echo "  SNTNL Peer: $SNTNL_PEER_ID"
 echo ""
 echo "Ecosystem:"
 echo "  Explorer: https://traceboundless.com"
 echo "  Trust: https://boundlesstrust.org"
-echo "  Wallet: https://e2multipass.com"
+echo "  Wallet: https://e2multipass.com (https://github.com/Saifullah62/E2-Multipass)"
+echo "  dApp: https://swarmproof.com"
 echo ""
 echo "Useful commands:"
 echo "  - View logs:       docker logs -f $CONTAINER_NAME"
 echo "  - Stop node:       docker stop $CONTAINER_NAME"
 echo "  - Start node:      docker start $CONTAINER_NAME"
 echo "  - Restart node:    docker restart $CONTAINER_NAME"
+echo "  - Node health:     docker inspect --format='{{.State.Health.Status}}' $CONTAINER_NAME"
+echo "  - Block height:    docker exec $CONTAINER_NAME curl -s -X POST -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"method\":\"chain_getBlockHeight\",\"params\":[],\"id\":1}' http://localhost:9933/"
+echo "  - Peer count:      docker exec $CONTAINER_NAME curl -s -X POST -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"method\":\"system_health\",\"params\":[],\"id\":1}' http://localhost:9933/"
 echo "  - Remove node:     docker stop $CONTAINER_NAME && docker rm $CONTAINER_NAME"
-echo "  - Node status:     docker ps | grep $CONTAINER_NAME"
+echo ""
+echo "Waiting for node to start (checking health)..."
+sleep 10
+echo ""
+echo "Node health status:"
+docker inspect --format='{{.State.Health.Status}}' "$CONTAINER_NAME" 2>/dev/null || echo "Health check starting..."
 echo ""
 echo "Viewing logs now (Ctrl+C to exit)..."
 sleep 2
