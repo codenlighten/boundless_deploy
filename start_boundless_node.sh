@@ -476,28 +476,64 @@ if [ -n "$IMAGE_FILE" ] && [ -f "$IMAGE_FILE" ]; then
     echo ""
     echo "Loading Docker image..."
     
-    # Check if it's gzipped
-    if file "$IMAGE_FILE" | grep -q "gzip compressed"; then
-        echo "Detected gzip compression, decompressing..."
-        gunzip -c "$IMAGE_FILE" | docker load
-    else
-        echo "Loading tar archive..."
-        docker load < "$IMAGE_FILE"
-    fi
+    # Verify file integrity first
+    echo "Verifying file integrity..."
+    FILE_SIZE=$(stat -f%z "$IMAGE_FILE" 2>/dev/null || stat -c%s "$IMAGE_FILE" 2>/dev/null)
+    echo "File size: $(numfmt --to=iec-i --suffix=B $FILE_SIZE 2>/dev/null || echo "$FILE_SIZE bytes")"
     
-    if [ $? -ne 0 ]; then
+    # Check if file seems complete (should be >40MB for our image)
+    MIN_SIZE=40000000  # 40MB minimum
+    if [ "$FILE_SIZE" -lt "$MIN_SIZE" ]; then
         echo ""
-        echo "❌ Failed to load Docker image"
+        echo "⚠️  WARNING: Image file appears incomplete or corrupted"
+        echo "Expected: >40MB"
+        echo "Got: $FILE_SIZE bytes"
         echo ""
-        echo "The image file may be corrupted or in an unexpected format."
         echo "File info:"
         file "$IMAGE_FILE"
         echo ""
-        echo "Please verify the image file or re-download."
-        exit 1
+        echo -n "Attempt to load anyway? (yes/no): "
+        read -r ATTEMPT_LOAD
+        if [ "$ATTEMPT_LOAD" != "yes" ]; then
+            echo ""
+            echo "Please re-download the image file."
+            echo "Delete the corrupted file: rm $IMAGE_FILE"
+            exit 1
+        fi
     fi
     
-    echo "✅ Image loaded successfully!"
+    # Check if it's gzipped
+    if file "$IMAGE_FILE" | grep -q "gzip compressed"; then
+        echo "Detected gzip compression, decompressing..."
+        if gunzip -c "$IMAGE_FILE" | docker load; then
+            echo "✅ Image loaded successfully!"
+        else
+            echo ""
+            echo "❌ Failed to load Docker image"
+            echo ""
+            echo "The gzipped archive may be corrupted."
+            echo "Try deleting and re-downloading:"
+            echo "  rm $IMAGE_FILE"
+            echo "  git pull  # If using bundled image"
+            exit 1
+        fi
+    else
+        echo "Loading tar archive..."
+        if docker load < "$IMAGE_FILE"; then
+            echo "✅ Image loaded successfully!"
+        else
+            echo ""
+            echo "❌ Failed to load Docker image"
+            echo ""
+            echo "The tar archive appears to be corrupted or incomplete."
+            echo ""
+            echo "Solutions:"
+            echo "1. Delete corrupted file: rm $IMAGE_FILE"
+            echo "2. If using git clone, re-clone or git pull"
+            echo "3. If downloaded separately, re-download from SOVRN"
+            exit 1
+        fi
+    fi
 fi
 
 # Verify the image exists
