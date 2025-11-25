@@ -18,11 +18,15 @@ Deploy Boundless BLS blockchain mining nodes with Lumenbridge's production-ready
 
 ## Network Information
 
-- **Mainnet Node:** `159.203.114.205:30333`
+- **Primary Node (SNTNL):** `104.248.166.157:30333`
+- **PeerId:** `12D3KooWCv2ETgGZx5i8rzebmAHuu57iDnqFxGa5ZR8D29CNrpXR`
 - **Bootnode:** `/ip4/159.203.114.205/tcp/30333/p2p/12D3KooWAeNG1hyCePFBb2Ryz4a5hR5gamVKvMgA7LRGbx5MPMPE`
-- **Explorer:** https://64.225.16.227/
+- **Block Height:** 1,008+ (and growing)
+- **Total Supply:** 50,450+ BLS
+- **Explorer:** https://traceboundless.com
 - **P2P Port:** 30333
 - **RPC Port:** 9933
+- **Resources:** http://159.203.114.205/node/
 
 ## Features
 
@@ -509,8 +513,13 @@ MIT License
 ## Quick Links
 
 - **Repository:** https://github.com/codenlighten/boundless_deploy
-- **Explorer:** https://64.225.16.227/
-- **Mainnet Bootnode:** 159.203.114.205:30333
+- **Explorer:** https://traceboundless.com
+- **Boundless Trust:** https://boundlesstrust.org
+- **E² Multipass Wallet:** https://e2multipass.com
+- **SwarmProof dApp:** https://swarmproof.com
+- **Quick Start Resources:** http://159.203.114.205/node/
+- **Primary Node (SNTNL):** 104.248.166.157:30333
+- **Bootnode:** 159.203.114.205:30333
 - **RPC Endpoint:** localhost:9933 (local node)
 
 ---
