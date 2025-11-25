@@ -19,8 +19,8 @@ The unified Boundless BLS mainnet is now live with **SOVRN** as the genesis auth
 
 #### SOVRN Genesis Authority (Primary)
 - **IP Address:** 159.203.114.205
-- **Peer ID:** `12D3KooWN5ZJAXXZviBDteowfWRsxXuDUMp6YuEzcRDoSuwMSod8`
-- **Bootnode:** `/ip4/159.203.114.205/tcp/30333/p2p/12D3KooWN5ZJAXXZviBDteowfWRsxXuDUMp6YuEzcRDoSuwMSod8`
+- **Peer ID:** `12D3KooWQdPKn2koRRkoKZiQz6dBovKgf1ZMAqqFDPjkm7Xrw6Up`
+- **Bootnode:** `/ip4/159.203.114.205/tcp/30333/p2p/12D3KooWQdPKn2koRRkoKZiQz6dBovKgf1ZMAqqFDPjkm7Xrw6Up`
 
 #### SNTNL Authority (Secondary)
 - **IP Address:** 104.248.166.157

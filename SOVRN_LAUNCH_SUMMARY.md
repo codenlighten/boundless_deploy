@@ -18,7 +18,7 @@ Bryan announced the **SOVRN Genesis Authority** launch - the canonical Boundless
 - **Genesis Authority:** SOVRN (159.203.114.205)
 
 **Network Authorities:**
-1. **SOVRN (Primary)** - `12D3KooWN5ZJAXXZviBDteowfWRsxXuDUMp6YuEzcRDoSuwMSod8`
+1. **SOVRN (Primary)** - `12D3KooWQdPKn2koRRkoKZiQz6dBovKgf1ZMAqqFDPjkm7Xrw6Up`
 2. **SNTNL (Secondary)** - `12D3KooWHWn3YCYPtd2ewdWehuv61CHWGADMg1fCnY5MHvVrJmJQ`
 
 **New Features:**
@@ -46,7 +46,7 @@ Bryan announced the **SOVRN Genesis Authority** launch - the canonical Boundless
 ```bash
 GENESIS_HASH="19a89cdb0712ac6fba3445bf686a9fec5322dacaf57351cc9d3d55b87dab8e79"
 GENESIS_TIMESTAMP="1735689600"
-SOVRN_PEER_ID="12D3KooWN5ZJAXXZviBDteowfWRsxXuDUMp6YuEzcRDoSuwMSod8"
+SOVRN_PEER_ID="12D3KooWQdPKn2koRRkoKZiQz6dBovKgf1ZMAqqFDPjkm7Xrw6Up"
 SNTNL_PEER_ID="12D3KooWHWn3YCYPtd2ewdWehuv61CHWGADMg1fCnY5MHvVrJmJQ"
 ```
 

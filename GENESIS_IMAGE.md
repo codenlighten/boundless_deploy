@@ -11,7 +11,28 @@
 
 ## Download Options
 
-### Option 1: Git Clone (Bundled)
+### Option 1: Official Package Method (Recommended by Bryan)
+
+Download the Docker image directly from SOVRN:
+
+```bash
+# SSH into SOVRN and stream the image
+ssh root@159.203.114.205 "docker save boundless-mainnet:genesis | gzip" > boundless-mainnet-genesis.tar.gz
+
+# Load the image
+gunzip -c boundless-mainnet-genesis.tar.gz | docker load
+
+# Verify
+docker images | grep boundless-mainnet
+```
+
+**Benefits:**
+- Direct from genesis authority
+- Always latest version
+- Guaranteed integrity
+- No git corruption issues
+
+### Option 2: Git Clone (Bundled)
 
 The image is bundled with the repository:
 

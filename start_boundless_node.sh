@@ -41,7 +41,7 @@ fi
 # SOVRN Genesis Authority Configuration
 GENESIS_HASH="19a89cdb0712ac6fba3445bf686a9fec5322dacaf57351cc9d3d55b87dab8e79"
 GENESIS_TIMESTAMP="1735689600"  # Jan 1, 2025 00:00:00 UTC
-SOVRN_PEER_ID="12D3KooWN5ZJAXXZviBDteowfWRsxXuDUMp6YuEzcRDoSuwMSod8"
+SOVRN_PEER_ID="12D3KooWQdPKn2koRRkoKZiQz6dBovKgf1ZMAqqFDPjkm7Xrw6Up"
 SNTNL_PEER_ID="12D3KooWHWn3YCYPtd2ewdWehuv61CHWGADMg1fCnY5MHvVrJmJQ"
 
 # Check if curl is installed (needed for downloading)
@@ -604,6 +604,10 @@ echo "  Genesis Hash: $GENESIS_HASH"
 echo "  Genesis Timestamp: Jan 1, 2025 00:00:00 UTC"
 echo "  SOVRN Peer: $SOVRN_PEER_ID"
 echo "  SNTNL Peer: $SNTNL_PEER_ID"
+echo ""
+echo "Official Package Info:"
+echo "  Package available at: C:\\Users\\ripva\\Desktop\\boundless-node-package\\"
+echo "  Alternative setup: ssh root@159.203.114.205 'docker save boundless-mainnet:genesis | gzip' > image.tar.gz"
 echo ""
 echo "Ecosystem:"
 echo "  Explorer: https://traceboundless.com"

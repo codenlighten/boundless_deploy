@@ -25,10 +25,10 @@
 ### SOVRN Genesis Authority (Primary) 🌟
 **The canonical mainnet starts here**
 
-- **PeerId:** `12D3KooWN5ZJAXXZviBDteowfWRsxXuDUMp6YuEzcRDoSuwMSod8`
+- **PeerId:** `12D3KooWQdPKn2koRRkoKZiQz6dBovKgf1ZMAqqFDPjkm7Xrw6Up`
 - **Host:** `159.203.114.205`
 - **Role:** Genesis authority and primary bootnode
-- **Bootnode:** `/ip4/159.203.114.205/tcp/30333/p2p/12D3KooWN5ZJAXXZviBDteowfWRsxXuDUMp6YuEzcRDoSuwMSod8`
+- **Bootnode:** `/ip4/159.203.114.205/tcp/30333/p2p/12D3KooWQdPKn2koRRkoKZiQz6dBovKgf1ZMAqqFDPjkm7Xrw6Up`
 - **Status:** ✅ Active - **GENESIS AUTHORITY**
 - **Ports:**
   - P2P: `30333`

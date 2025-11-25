@@ -29,8 +29,8 @@ Deploy Boundless BLS blockchain mining nodes with Lumenbridge's production-ready
 
 ### SOVRN Genesis Authority (Primary)
 - **Host:** `159.203.114.205:30333`
-- **PeerId:** `12D3KooWN5ZJAXXZviBDteowfWRsxXuDUMp6YuEzcRDoSuwMSod8`
-- **Bootnode:** `/ip4/159.203.114.205/tcp/30333/p2p/12D3KooWN5ZJAXXZviBDteowfWRsxXuDUMp6YuEzcRDoSuwMSod8`
+- **PeerId:** `12D3KooWQdPKn2koRRkoKZiQz6dBovKgf1ZMAqqFDPjkm7Xrw6Up`
+- **Bootnode:** `/ip4/159.203.114.205/tcp/30333/p2p/12D3KooWQdPKn2koRRkoKZiQz6dBovKgf1ZMAqqFDPjkm7Xrw6Up`
 - **Role:** Genesis authority and primary bootnode
 
 ### SNTNL Authority (Secondary)
