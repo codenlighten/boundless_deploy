@@ -1,0 +1,44 @@
+[package]
+name = "boundless-keepbox"
+version = "1.0.0"
+edition = "2021"
+authors = ["Boundless Contributors"]
+description = "Secure encrypted wallet storage for Boundless blockchain"
+license = "MIT"
+
+[[bin]]
+name = "boundless-keepbox"
+path = "boundless_keepbox.rs"
+
+[dependencies]
+# Cryptography
+aes-gcm = "0.10"
+argon2 = "0.5"
+ed25519-dalek = { version = "2.2.0", features = ["rand_core", "zeroize"] }
+sha3 = "0.10"
+bip39 = "2.2.0"
+
+# Encoding
+hex = "0.4"
+base64 = "0.21"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+rpassword = "7.3"
+
+# Security
+zeroize = { version = "1.7", features = ["derive"] }
+getrandom = "0.2"
+
+# Utilities
+chrono = "0.4"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

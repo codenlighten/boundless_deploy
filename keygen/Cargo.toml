@@ -1,0 +1,80 @@
+[package]
+name = "boundless-wallet-gen"
+version = "0.1.0"
+edition = "2021"
+authors = ["Boundless Contributors"]
+description = "Secure local wallet generator for Boundless BLS blockchain"
+license = "MIT"
+repository = "https://github.com/boundless/wallet-gen"
+keywords = ["blockchain", "wallet", "crypto", "bls", "post-quantum"]
+categories = ["cryptography", "command-line-utilities"]
+
+[dependencies]
+# BIP39 mnemonic support
+bip39 = "2.2.0"
+
+# Ed25519 signatures (classical)
+ed25519-dalek = { version = "2.2.0", features = ["rand_core", "zeroize"] }
+
+# SHA3-256 hashing (Keccak)
+sha3 = "0.10"
+
+# Hexadecimal encoding
+hex = "0.4"
+
+# Random number generation
+rand = "0.8"
+getrandom = "0.2"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# CLI argument parsing
+clap = { version = "4.5", features = ["derive"] }
+
+# Memory security (zeroization)
+zeroize = { version = "1.7", features = ["derive"] }
+
+# Optional: Post-Quantum Cryptography (requires liboqs)
+# Uncomment when PQC support is needed
+# oqs = { version = "0.10", features = ["serde"], optional = true }
+
+# Encrypted keystore support (AES-256-GCM)
+aes-gcm = "0.10"
+argon2 = "0.5"
+base64 = "0.21"
+chrono = "0.4"
+rpassword = "7.3"
+
+[features]
+default = []
+# Post-quantum cryptography support (ML-DSA-44/Dilithium2)
+pqc = [] # pqc = ["oqs"]
+# Encrypted keystore with AES-256-GCM
+keystore = [] # keystore = ["aes-gcm", "argon2", "base64", "chrono"]
+
+[dev-dependencies]
+# Testing utilities
+tempfile = "3.8"
+assert_cmd = "2.0"
+predicates = "3.0"
+
+[profile.release]
+# Optimize for security and size
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.dev]
+# Fast compilation for development
+opt-level = 0
+
+[[bin]]
+name = "boundless-wallet-gen"
+path = "boundless_wallet_gen.rs"
+
+[[bin]]
+name = "boundless-keepbox"
+path = "boundless_keepbox.rs"

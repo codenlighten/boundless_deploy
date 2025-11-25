@@ -1,0 +1,25 @@
+{
+  "name": "boundless-node-controller",
+  "version": "1.0.0",
+  "description": "Lumenbridge-compliant orchestration controller for Boundless BLS blockchain nodes",
+  "main": "controller/deploy.js",
+  "scripts": {
+    "deploy": "node controller/deploy.js",
+    "validate": "node controller/validate.js",
+    "status": "node controller/status.js"
+  },
+  "keywords": [
+    "lumenbridge",
+    "blockchain",
+    "boundless",
+    "docker",
+    "orchestration",
+    "schema"
+  ],
+  "author": "Lumenbridge",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "ajv": "^8.12.0"
+  }
+}

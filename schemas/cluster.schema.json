@@ -1,0 +1,115 @@
+{
+  "$id": "https://lumenbridge.xyz/schemas/cluster.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Cluster",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["clusterId", "hub", "nodes"],
+  "properties": {
+    "clusterId": {
+      "type": "string",
+      "description": "Unique cluster identifier."
+    },
+    "environment": {
+      "type": "string",
+      "enum": ["development", "staging", "production"],
+      "default": "production"
+    },
+    "hub": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["host", "port"],
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "Hub hostname or IP."
+        },
+        "port": {
+          "type": "integer",
+          "description": "Hub port."
+        },
+        "protocol": {
+          "type": "string",
+          "enum": ["http", "https", "ws", "wss"],
+          "default": "https"
+        },
+        "apiVersion": {
+          "type": "string",
+          "default": "v1"
+        }
+      }
+    },
+    "secrets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["env", "vault", "k8s-secret", "docker-secret"],
+          "default": "env"
+        },
+        "vaultConfig": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "address": { "type": "string" },
+            "role": { "type": "string" },
+            "secretPath": { "type": "string" }
+          }
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "description": "Array of node definitions.",
+      "items": {
+        "$ref": "docker-node.schema.json"
+      }
+    },
+    "orchestration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "platform": {
+          "type": "string",
+          "enum": ["docker", "docker-compose", "caprover", "k8s"],
+          "default": "docker"
+        },
+        "namespace": {
+          "type": "string",
+          "description": "K8s namespace or CapRover app name."
+        },
+        "deploymentStrategy": {
+          "type": "string",
+          "enum": ["parallel", "sequential"],
+          "default": "sequential"
+        }
+      }
+    },
+    "monitoring": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "prometheus": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "scrapeInterval": { "type": "string", "default": "30s" }
+          }
+        },
+        "grafana": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "dashboards": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+# Python dependencies for Boundless Wallet Generator
+# Install with: pip install -r requirements.txt
+
+# BIP39 mnemonic generation and validation
+mnemonic>=0.20
+
+# Ed25519 signatures via PyNaCl (classical cryptography)
+PyNaCl>=1.5.0
+
+# SHA3-256 hashing (Keccak) via pycryptodome
+pycryptodome>=3.19.0
+
+# Optional: Enhanced security features
+# Uncomment these for production CLI implementation
+
+# Encrypted keystore support (AES-256-GCM)
+# cryptography==41.0.7
+
+# Password hashing (Argon2id)
+# argon2-cffi==23.1.0
+
+# QR code generation (for air-gap transfers)
+# qrcode==7.4.2
+# pillow==10.1.0
+
+# Development and testing
+# pytest==7.4.3
+# pytest-cov==4.1.0

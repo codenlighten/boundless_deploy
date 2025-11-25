@@ -1,0 +1,450 @@
+{
+  "$id": "https://lumenbridge.xyz/schemas/docker-node.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DockerNode",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "role", "image", "hubConnection"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique node identifier within the fleet (stable)."
+    },
+    "role": {
+      "type": "string",
+      "description": "Logical role of the node (e.g., terminal-agent, schema-registry, api-gateway, blockchain-miner)."
+    },
+
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "tag"],
+      "properties": {
+        "registry": {
+          "type": "string",
+          "description": "Optional registry URL (e.g., registry.codenlighten.org:996)."
+        },
+        "repository": {
+          "type": "string",
+          "description": "Image repository (e.g., captain/img-captain-lumenbridge)."
+        },
+        "tag": {
+          "type": "string",
+          "description": "Image tag (e.g., 6, 1.0.3, latest)."
+        },
+        "digest": {
+          "type": "string",
+          "description": "Optional content digest (sha256:...) for pinning exact image."
+        },
+        "updatePolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["strategy"],
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": ["fixed", "track-latest", "semver-range"],
+              "description": "How updates are handled for this image."
+            },
+            "semverRange": {
+              "type": "string",
+              "description": "Semver range if strategy = semver-range (e.g. ^1.2.0)."
+            },
+            "autoRollout": {
+              "type": "boolean",
+              "default": false,
+              "description": "If true, hub can automatically rollout when newer allowed image exists."
+            }
+          }
+        }
+      }
+    },
+
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cpu": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "limit": {
+              "type": "number",
+              "description": "CPU limit (cores), e.g. 0.5 = 500m."
+            },
+            "reserve": {
+              "type": "number",
+              "description": "Guaranteed CPU reservation."
+            }
+          }
+        },
+        "memory": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "limitMiB": {
+              "type": "integer",
+              "description": "Max memory in MiB."
+            },
+            "reserveMiB": {
+              "type": "integer",
+              "description": "Reserved memory in MiB."
+            }
+          }
+        }
+      }
+    },
+
+    "env": {
+      "type": "array",
+      "description": "Environment variables (values or references to secrets).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "value": {
+            "type": "string",
+            "description": "Plain value (non-secret)."
+          },
+          "valueFromSecret": {
+            "type": "string",
+            "description": "Name/key of secret to load at runtime."
+          }
+        }
+      }
+    },
+
+    "volumes": {
+      "type": "array",
+      "description": "Volume mounts for the container.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["mountPath"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Logical volume name."
+          },
+          "hostPath": {
+            "type": "string",
+            "description": "Optional host path to bind mount."
+          },
+          "mountPath": {
+            "type": "string",
+            "description": "Path inside the container."
+          },
+          "readOnly": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      }
+    },
+
+    "networks": {
+      "type": "array",
+      "description": "Networks this node should join.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "aliases": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "allowedOutboundCIDRs": {
+            "type": "array",
+            "description": "Optional outbound egress allowlist (for firewalls).",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "healthcheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "test": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Docker-style healthcheck command array."
+        },
+        "intervalSeconds": {
+          "type": "integer",
+          "default": 30
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "default": 5
+        },
+        "retries": {
+          "type": "integer",
+          "default": 3
+        },
+        "startPeriodSeconds": {
+          "type": "integer",
+          "default": 10
+        }
+      }
+    },
+
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Hardening profile for the container.",
+      "properties": {
+        "runAsUser": {
+          "type": "integer",
+          "description": "UID to run as (avoid root)."
+        },
+        "runAsGroup": {
+          "type": "integer",
+          "description": "GID to run as."
+        },
+        "readOnlyRootFilesystem": {
+          "type": "boolean",
+          "default": true
+        },
+        "allowPrivilegeEscalation": {
+          "type": "boolean",
+          "default": false
+        },
+        "capabilities": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "add": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "drop": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "seccompProfile": {
+          "type": "string",
+          "description": "Optional seccomp profile name/path."
+        },
+        "apparmorProfile": {
+          "type": "string",
+          "description": "Optional AppArmor profile."
+        }
+      }
+    },
+
+    "updatePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": ["rolling", "blue-green", "recreate"],
+          "default": "rolling"
+        },
+        "maxUnavailable": {
+          "type": "integer",
+          "default": 1
+        },
+        "maxSurge": {
+          "type": "integer",
+          "default": 1
+        },
+        "drainTimeoutSeconds": {
+          "type": "integer",
+          "default": 60
+        },
+        "autoRestartOnFailure": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+
+    "hubConnection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["host", "port"],
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "DNS or IP of hub."
+        },
+        "port": {
+          "type": "integer",
+          "description": "Hub port."
+        },
+        "protocol": {
+          "type": "string",
+          "enum": ["http", "https", "ws", "wss"],
+          "default": "https"
+        },
+        "tls": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "caFile": {
+              "type": "string",
+              "description": "Path to CA cert in container."
+            },
+            "certFile": {
+              "type": "string",
+              "description": "Client cert for mTLS."
+            },
+            "keyFile": {
+              "type": "string",
+              "description": "Client key for mTLS."
+            }
+          }
+        },
+        "auth": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["none", "token", "mtls"],
+              "default": "token"
+            },
+            "tokenEnvVar": {
+              "type": "string",
+              "description": "Env var name that holds hub auth token."
+            }
+          }
+        },
+        "heartbeat": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "intervalSeconds": {
+              "type": "integer",
+              "default": 30
+            },
+            "timeoutSeconds": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        }
+      }
+    },
+
+    "logging": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "driver": {
+          "type": "string",
+          "description": "Docker logging driver (json-file, syslog, fluentd, etc)."
+        },
+        "options": {
+          "type": "object",
+          "description": "Arbitrary logging driver options.",
+          "additionalProperties": { "type": "string" }
+        },
+        "maxSize": {
+          "type": "string",
+          "description": "e.g., 10m"
+        },
+        "maxFiles": {
+          "type": "integer",
+          "description": "e.g., 3"
+        }
+      }
+    },
+
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "port": {
+          "type": "integer",
+          "description": "Port for Prometheus/metrics endpoint."
+        },
+        "path": {
+          "type": "string",
+          "default": "/metrics"
+        }
+      }
+    },
+
+    "blockchainConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Blockchain-specific configuration for mining nodes.",
+      "properties": {
+        "mining": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "coinbase": {
+              "type": "string",
+              "description": "Mining rewards address."
+            },
+            "threads": {
+              "type": "integer",
+              "default": 2,
+              "description": "Number of mining threads."
+            }
+          }
+        },
+        "network": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "p2pPort": {
+              "type": "integer",
+              "default": 30333
+            },
+            "rpcPort": {
+              "type": "integer",
+              "default": 9933
+            },
+            "rpcHost": {
+              "type": "string",
+              "default": "0.0.0.0"
+            },
+            "bootnodes": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "List of bootnode multiaddrs."
+            }
+          }
+        },
+        "storage": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "basePath": {
+              "type": "string",
+              "default": "/data"
+            },
+            "volumeName": {
+              "type": "string",
+              "default": "boundless-data"
+            }
+          }
+        }
+      }
+    }
+  }
+}

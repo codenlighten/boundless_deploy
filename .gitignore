@@ -1,0 +1,54 @@
+# Generated wallet files (NEVER commit private keys!)
+boundless_wallet_*.json
+wallet_*.json
+*.json.backup
+
+# Docker images
+blockchain-image.tar.gz
+*.tar.gz
+
+# Node modules
+node_modules/
+package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Rust build artifacts (for keygen)
+keygen/target/
+keygen/Cargo.lock
+keygen/*.json
+!keygen/Cargo.toml
+
+# Backup files
+*.bak
+*~
