@@ -366,17 +366,146 @@ fi
 # Download Docker image if not already present
 if [ ! -f "$IMAGE_FILE" ]; then
     echo ""
-    echo "Downloading SOVRN Genesis mainnet image..."
-    curl -o "$IMAGE_FILE" "$IMAGE_URL"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Download SOVRN Genesis Image"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "The genesis image needs to be obtained from SOVRN authority."
+    echo ""
+    echo "Options:"
+    echo "  1) Download via SCP from SOVRN (requires SSH access)"
+    echo "  2) I already have the image file in current directory"
+    echo "  3) Build from source (advanced - requires git repo)"
+    echo ""
+    echo -n "Enter choice (1, 2, or 3): "
+    read -r DOWNLOAD_CHOICE
+    
+    if [ "$DOWNLOAD_CHOICE" = "1" ]; then
+        echo ""
+        echo "Downloading from SOVRN (159.203.114.205)..."
+        echo "You may be prompted for the SOVRN server password."
+        echo ""
+        
+        if scp root@159.203.114.205:/tmp/boundless-mainnet-genesis.tar.gz "$IMAGE_FILE"; then
+            echo "✅ Download successful!"
+        else
+            echo ""
+            echo "❌ Download failed. Please ensure:"
+            echo "   • You have SSH access to 159.203.114.205"
+            echo "   • The image exists at /tmp/boundless-mainnet-genesis.tar.gz"
+            echo ""
+            echo "Alternative: Contact Bryan for image access"
+            exit 1
+        fi
+        
+    elif [ "$DOWNLOAD_CHOICE" = "2" ]; then
+        echo ""
+        echo "Looking for $IMAGE_FILE in current directory..."
+        
+        if [ -f "$IMAGE_FILE" ]; then
+            echo "✅ Found $IMAGE_FILE"
+        else
+            echo "❌ File not found: $IMAGE_FILE"
+            echo ""
+            echo "Please copy the genesis image to:"
+            echo "  $(pwd)/$IMAGE_FILE"
+            echo ""
+            echo "Then run this script again."
+            exit 1
+        fi
+        
+    elif [ "$DOWNLOAD_CHOICE" = "3" ]; then
+        echo ""
+        echo "Building from source..."
+        echo ""
+        echo "This option requires:"
+        echo "  • Boundless source code repository"
+        echo "  • Rust toolchain installed"
+        echo "  • Docker build capabilities"
+        echo ""
+        echo -n "Do you have the Boundless source repo? (yes/no): "
+        read -r HAS_SOURCE
+        
+        if [ "$HAS_SOURCE" = "yes" ] || [ "$HAS_SOURCE" = "y" ]; then
+            echo ""
+            echo -n "Enter path to Boundless source directory: "
+            read -r SOURCE_PATH
+            
+            if [ -d "$SOURCE_PATH" ]; then
+                echo "Building Docker image from source..."
+                cd "$SOURCE_PATH"
+                
+                if docker build -t "$IMAGE_NAME" .; then
+                    cd - > /dev/null
+                    echo "✅ Build successful!"
+                    # Skip the load step since we built directly
+                    IMAGE_FILE=""
+                else
+                    cd - > /dev/null
+                    echo "❌ Build failed"
+                    exit 1
+                fi
+            else
+                echo "ERROR: Directory not found: $SOURCE_PATH"
+                exit 1
+            fi
+        else
+            echo ""
+            echo "Please obtain the source code or genesis image."
+            echo "Contact Bryan for access."
+            exit 1
+        fi
+    else
+        echo "ERROR: Invalid choice. Please enter 1, 2, or 3."
+        exit 1
+    fi
 else
     echo ""
     echo "Docker image file already exists, skipping download."
 fi
 
-# Load Docker image
+# Load Docker image (if we downloaded a file)
+if [ -n "$IMAGE_FILE" ] && [ -f "$IMAGE_FILE" ]; then
+    echo ""
+    echo "Loading Docker image..."
+    
+    # Check if it's gzipped
+    if file "$IMAGE_FILE" | grep -q "gzip compressed"; then
+        echo "Detected gzip compression, decompressing..."
+        gunzip -c "$IMAGE_FILE" | docker load
+    else
+        echo "Loading tar archive..."
+        docker load < "$IMAGE_FILE"
+    fi
+    
+    if [ $? -ne 0 ]; then
+        echo ""
+        echo "❌ Failed to load Docker image"
+        echo ""
+        echo "The image file may be corrupted or in an unexpected format."
+        echo "File info:"
+        file "$IMAGE_FILE"
+        echo ""
+        echo "Please verify the image file or re-download."
+        exit 1
+    fi
+    
+    echo "✅ Image loaded successfully!"
+fi
+
+# Verify the image exists
 echo ""
-echo "Loading Docker image..."
-gunzip -c "$IMAGE_FILE" | docker load || docker load < "$IMAGE_FILE"
+echo "Verifying Docker image..."
+if ! docker images | grep -q "$IMAGE_NAME"; then
+    echo "❌ Image not found: $IMAGE_NAME"
+    echo ""
+    echo "Available images:"
+    docker images
+    echo ""
+    echo "Please ensure the image is loaded correctly."
+    exit 1
+fi
+echo "✅ Image verified: $IMAGE_NAME"
 
 # Create data directory with proper permissions
 echo ""
