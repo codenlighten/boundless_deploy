@@ -102,6 +102,42 @@ if [ "$WALLET_CHOICE" = "1" ]; then
         exit 1
     fi
     
+    # Check if Python 3 is installed
+    if ! command -v python3 &> /dev/null; then
+        echo "⚠️  Python 3 is not installed!"
+        echo ""
+        echo -n "Would you like to install Python 3 now? (yes/no): "
+        read -r INSTALL_PYTHON
+        
+        if [ "$INSTALL_PYTHON" = "yes" ] || [ "$INSTALL_PYTHON" = "y" ]; then
+            echo "Installing Python 3..."
+            sudo apt update
+            sudo apt install python3 python3-pip -y
+            echo "✅ Python 3 installed successfully!"
+        else
+            echo "ERROR: Python 3 is required for wallet generation."
+            exit 1
+        fi
+    fi
+    
+    # Check if pip3 is installed
+    if ! command -v pip3 &> /dev/null; then
+        echo "⚠️  pip3 is not installed!"
+        echo ""
+        echo -n "Would you like to install pip3 now? (yes/no): "
+        read -r INSTALL_PIP
+        
+        if [ "$INSTALL_PIP" = "yes" ] || [ "$INSTALL_PIP" = "y" ]; then
+            echo "Installing pip3..."
+            sudo apt update
+            sudo apt install python3-pip -y
+            echo "✅ pip3 installed successfully!"
+        else
+            echo "ERROR: pip3 is required for wallet generation."
+            exit 1
+        fi
+    fi
+    
     # Check Python dependencies
     if ! python3 -c "import mnemonic, Crypto.Hash, nacl" 2>/dev/null; then
         echo "Installing required Python dependencies..."
