@@ -24,6 +24,15 @@ Deploy Boundless BLS blockchain mining nodes with Lumenbridge's production-ready
 - **P2P Port:** 30333
 - **RPC Port:** 9933
 
+## Features
+
+- ✅ **Mining Nodes** - Earn BLS tokens by contributing to network security
+- ✅ **Wallet Generation** - Automatic BIP39 wallet creation with Ed25519 keys
+- ✅ **Transaction Sending** - Simple Python tool for peer-to-peer transfers
+- ✅ **Balance Checking** - Query any address balance via RPC
+- ✅ **Local Testing** - Automated test deployment for development
+- ✅ **Schema Validation** - JSON Schema validation for all configurations
+
 ## Quick Start (30 seconds)
 
 ```bash
@@ -384,6 +393,66 @@ This deployment integrates with:
 - **Metrics**: Scraped by Prometheus
 - **Logs**: Centralized via hub
 
+## Sending Transactions
+
+Send BLS tokens between wallets using the included transaction tool.
+
+### Quick Transaction Example
+
+```bash
+# Generate two wallets for testing
+python3 keygen/boundless_wallet_gen.py generate --show-private -o alice.json
+python3 keygen/boundless_wallet_gen.py generate --show-private -o bob.json
+
+# Extract Bob's address
+BOB_ADDRESS=$(python3 -c "import json; print(json.load(open('bob.json'))['address'])")
+
+# Send 100 BLS from Alice to Bob
+python3 send_transaction.py --from alice.json --to $BOB_ADDRESS --amount 100
+
+# Check Bob's balance
+python3 send_transaction.py --balance $BOB_ADDRESS
+```
+
+### Transaction Commands
+
+**Send Transaction:**
+```bash
+python3 send_transaction.py --from wallet.json --to <address> --amount 50
+```
+
+**Check Balance:**
+```bash
+python3 send_transaction.py --balance <address>
+```
+
+**Transaction Status:**
+```bash
+python3 send_transaction.py --tx-status <tx_hash>
+```
+
+**Send from Mnemonic:**
+```bash
+python3 send_transaction.py --mnemonic "word1 word2 ..." --to <address> --amount 25
+```
+
+**Full Documentation:** See [TRANSACTION_GUIDE.md](TRANSACTION_GUIDE.md) for complete usage instructions.
+
+## Local Testing
+
+Deploy a local test node to experiment with transactions and metrics:
+
+```bash
+./test_local_deployment.sh
+```
+
+This will:
+- Generate a test wallet with private key
+- Start a local mining node
+- Enable RPC on `localhost:9933`
+- Enable metrics on `localhost:9615`
+- Show useful testing commands
+
 ## Troubleshooting
 
 ### Container won't start
@@ -426,6 +495,23 @@ MIT License
 **Attribution:**
 - Wallet Generation: https://github.com/Saifullah62/BLS_KeyGen
 - Deployment System: https://github.com/codenlighten/boundless_deploy
+
+## Documentation
+
+- **[README.md](README.md)** - Main documentation (this file)
+- **[TRANSACTION_GUIDE.md](TRANSACTION_GUIDE.md)** - Complete guide for sending transactions
+- **[WALLET_INTEGRATION.md](WALLET_INTEGRATION.md)** - Wallet generation details
+- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Technical implementation
+- **[ACTIVE_NODES.md](ACTIVE_NODES.md)** - Production deployment tracker
+- **[keygen/README.md](keygen/README.md)** - Wallet generator documentation
+- **[keygen/SECURITY.md](keygen/SECURITY.md)** - Security best practices
+
+## Quick Links
+
+- **Repository:** https://github.com/codenlighten/boundless_deploy
+- **Explorer:** https://64.225.16.227/
+- **Mainnet Bootnode:** 159.203.114.205:30333
+- **RPC Endpoint:** localhost:9933 (local node)
 
 ---
 
