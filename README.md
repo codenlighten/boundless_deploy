@@ -62,6 +62,25 @@ Deploy Boundless BLS blockchain mining nodes with Lumenbridge's production-ready
 
 ## Quick Start (30 seconds)
 
+### Option 1: Simple Setup Script (Recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/codenlighten/boundless_deploy.git
+cd boundless_deploy
+
+# Run the setup script
+chmod +x setup.sh
+./setup.sh YOUR_COINBASE_ADDRESS [node-name] [mining-threads]
+```
+
+**Example:**
+```bash
+./setup.sh bbc7b10e66302282541a8083f3a7243bab9f732c9aed5924df4c2646e98758f2 my-node 2
+```
+
+### Option 2: Interactive Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/codenlighten/boundless_deploy.git
@@ -73,7 +92,7 @@ cd boundless_deploy
 
 **Included:** The repository includes `boundless-bls-node-package-complete.tar.gz` (46MB) - the SOVRN Genesis mainnet image. No separate download needed!
 
-The script will:
+Both scripts will:
 1. ✅ Auto-install Docker if needed
 2. ✅ Generate a new wallet or use your existing address
 3. ✅ Download the blockchain node image (46MB)
